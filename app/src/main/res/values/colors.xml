@@ -7,4 +7,6 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="my_green">#006400</color> <!-- 自定义绿色 -->
+    <color name="my_orange">#FF8C00</color> <!-- 自定义绿色 -->
 </resources>
