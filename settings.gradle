@@ -1,0 +1,4 @@
+project(':app').projectDir = new File(rootDir, 'homework2/app/')
+include ':app'
+include ':app'
+include ':app'
