@@ -5,9 +5,10 @@
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
         <option name="testRunner" value="GRADLE" />
-        <option name="distributionType" value="DEFAULT_WRAPPED" />
+        <option name="distributionType" value="LOCAL" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="gradleHome" value="$PROJECT_DIR$/../../develop/android/gradle_repo/wrapper/dists/gradle-7.4.2-bin/gradle-7.4.2" />
+        <option name="gradleJvm" value="Android Studio default JDK" />
       </GradleProjectSettings>
     </option>
   </component>
