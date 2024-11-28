@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"> <!-- 设置整个布局的背景颜色为白色 -->
+
+    <SearchView
+        android:id="@+id/search_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:iconifiedByDefault="false"
+        android:background="#7A99D7"
+        android:queryHint="搜索"
+        android:layout_alignParentTop="true">
+    </SearchView>
+
+    <ListView
+        android:id="@android:id/list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"> <!-- 设置ListView的背景颜色为白色 -->
+    </ListView>
+
+</LinearLayout>
