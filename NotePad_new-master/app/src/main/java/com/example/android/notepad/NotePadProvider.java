@@ -490,11 +490,8 @@ public class NotePadProvider extends ContentProvider implements PipeDataWriter<C
             values = new ContentValues();
         }
 
-        //获取当前系统时间
-        Long nowtime = Long.valueOf(System.currentTimeMillis());
-        Date date = new Date(nowtime);
-        SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-        String Time = format.format(date);
+
+        String Time = TimeUtil.getCurrentTimeFormatted();
 
         // 如果值映射中不包含创建日期，则将值设置为当前时间。
         if (values.containsKey(NotePad.Notes.COLUMN_NAME_CREATE_DATE) == false) {

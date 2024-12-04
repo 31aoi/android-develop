@@ -535,10 +535,7 @@ public class NoteEditor extends Activity {
      * @param title The new note title to use
      */
     private final void updateNote(String text, String title) {
-        Long nowTime = Long.valueOf(System.currentTimeMillis());
-        java.sql.Date date = new Date(nowTime);
-        SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-        String Time = format.format(date);
+        String Time = TimeUtil.getCurrentTimeFormatted();
         // Sets up a map to contain values to be updated in the provider.
         ContentValues values = new ContentValues();
         values.put(NotePad.Notes.COLUMN_NAME_MODIFICATION_DATE, Time);

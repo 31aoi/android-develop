@@ -2,9 +2,9 @@
 
 ## 一 功能如下：
 
-1.增加时间戳显示
+1.增加时间戳显示(基础)
 
-2.添加笔记查询功能
+2.添加笔记查询功能(基础)
 
 3.笔记导出(拓展)
 
@@ -14,115 +14,102 @@
 
 ## 二 主界面增加时间戳：
 
-创建笔记完成后效果:显示创建时间
+1)创建笔记完成后效果:显示创建时间
 
 
 
 ![img_1.png](img_1.png)
 
-修改Note2这条笔记:修改时间变化
+修改Note2这条笔记使得修改时间变化,最新的会在上面
 
 
 
 ![img_2.png](img_2.png)
 
-1.在NoteList类的PROJECTION中定义显示时间戳:
+2)思路:数据库在创建的时候便有时间戳数据了,在数据数组中补充时间戳的相关信息并利用工具类进行转换格式为常见的日期格式
+
+1.Cursor不变,在NoteList类的相关数组中定义时间戳数据并且加入时间戳的相关部分:
 
 ```
 private static final String[] PROJECTION = new String[] {
-        NotePad.Notes._ID, // 0
-        NotePad.Notes.COLUMN_NAME_TITLE, // 1
-        NotePad.Notes.COLUMN_NAME_MODIFICATION_DATE//显示时间戳
-
+        NotePad.Notes._ID,
+        NotePad.Notes.COLUMN_NAME_TITLE, 
+        NotePad.Notes.COLUMN_NAME_MODIFICATION_DATE//显示修改的时间
 };
 ```
 
-
-
-2.在NoteList类的dataColumns，viewIDs中加入时间戳的相关部分:时间戳的数据和viewId:
-
 ```
 private String[] dataColumns = { NotePad.Notes.COLUMN_NAME_TITLE ,
-        NotePad.Notes.COLUMN_NAME_MODIFICATION_DATE } ;
-private int[] viewIDs = { android.R.id.text1 , R.id.time };
+        NotePad.Notes.COLUMN_NAME_MODIFICATION_DATE//日期数据 } ;
+private int[] viewIDs = { android.R.id.text1 , R.id.time//日期viewid };
 ```
 
-
-
-3.在NotePadeProvider中insert方法对日期进行格式转换:
+2.创建工具类对时间戳进行格式转换:
 
 ```
-//获取当前系统时间
-Long nowtime = Long.valueOf(System.currentTimeMillis());
-Date date = new Date(nowtime);
-SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-String Time = format.format(date);
+package com.example.android.notepad;
 
-// 如果值映射中不包含创建日期，则将值设置为当前时间。
-if (values.containsKey(NotePad.Notes.COLUMN_NAME_CREATE_DATE) == false) {
-    values.put(NotePad.Notes.COLUMN_NAME_CREATE_DATE, Time);
-}
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
-// 如果值映射中不包含修改日期，则将值设置为当前时间。
-if (values.containsKey(NotePad.Notes.COLUMN_NAME_MODIFICATION_DATE) == false) {
-    values.put(NotePad.Notes.COLUMN_NAME_MODIFICATION_DATE, Time);
+public class TimeUtil {
+
+    public static String getCurrentTimeFormatted() {
+        Long nowtime = Long.valueOf(System.currentTimeMillis());
+        Date date = new Date(nowtime);
+        SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+        return format.format(date);
+    }
 }
 ```
 
-
-
-4.在NodeEditor的updateNote方法中转换日期格式:
+3.在notelist布局文件中加入时间的textview
 
 ```
-Long nowTime = Long.valueOf(System.currentTimeMillis());
-java.sql.Date date = new Date(nowTime);
-SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-String Time = format.format(date);
-// Sets up a map to contain values to be updated in the provider.
-ContentValues values = new ContentValues();
-values.put(NotePad.Notes.COLUMN_NAME_MODIFICATION_DATE, Time);
+    <TextView
+        android:id="@+id/time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="3dip"
+        android:paddingBottom="5dip"
+        android:textColor="@color/black"/>
 ```
 
 
 
-5.添加list布局中时间戳的textview
+## 三、笔记搜索：模糊查询
 
-```
-<TextView
-    android:id="@+id/time"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:textAppearance="?android:attr/textAppearance"
-    android:paddingLeft="5dip"
-    android:textColor="@color/black"/>
-```
-
-
-
-## 三、笔记搜索：
-
-效果:
+效果:搜索Note
 
 ![img_3.png](img_3.png)
+
+搜索不存在的标题
+
 ![img_5.png](img_5.png)
+
+搜索note3
+
 ![img_6.png](img_6.png)
 
-1.添加菜单文件中的搜索图标:
+1.添加搜索图标并将这个搜索图标绑定到菜单项的点击事件:
 
 ```
 <item
-    android:id="@+id/menu_search"
-    android:title="@string/menu_search"
+    android:id="@+id/search"
+    android:title="@string/search"
     android:icon="@android:drawable/ic_search_category_default"
     android:showAsAction="always">
 </item>
 ```
 
-
-
-2.在NoteLIst类的onOptionsItemSelected方法中添加case情况:
-
 (当用户在`NotesList`活动中点击搜索菜单项时，应用程序将会打开一个新的`NoteSearch`活动，用于执行搜索相关的操作)
+
+思路:当用户点击这个菜单项时
+
+- 系统会触发`onOptionsItemSelected(MenuItem item)`方法。
+- 在这个方法内部，一个`switch`语句检查`item`的ID。
+- 当`item`的ID匹配`R.id.menu_search`时，执行上述代码块。
+- 创建一个`Intent`，设置目标`Activity`为`NoteSearch`，并启动它。
 
 ```
 case R.id.menu_search:
@@ -132,7 +119,7 @@ case R.id.menu_search:
     return true;
 ```
 
-3.新建布局文件note_search_list.xml:新建搜素框和列表的view
+2.创建layout文件:用来显示新的搜索活动,里面有搜索框和搜索出来的笔记列表
 
 ```
 <?xml version="1.0" encoding="utf-8"?>
@@ -140,7 +127,7 @@ case R.id.menu_search:
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"> <!-- 设置整个布局的背景颜色为白色 -->
+    android:background="@color/white"> 
 
     <SearchView//搜索框
         android:id="@+id/search_view"
@@ -156,44 +143,48 @@ case R.id.menu_search:
         android:id="@android:id/list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"> <!-- 设置ListView的背景颜色为白色 -->
+        android:background="@color/white"> 
     </ListView>
 
 </LinearLayout>
 ```
 
-4.新建NoteSearch类:这个类提供了一个用户界面，允许用户搜索笔记应用中的笔记，并显示搜索结果。当用户选择一个搜索结果时，根据原始请求的意图，它可以返回选中的笔记或者打开笔记的编辑界面
+3.新建NoteSearch类:这个类提供了一个用户界面，允许用户搜索笔记应用中的笔记，并显示搜索结果。当用户选择一个搜索结果时，根据原始请求的意图，它可以返回选中的笔记或者打开笔记的编辑界面
 
 ```
-package com.example.android.notepad;
+public class NoteSearch extends Activity implements SearchView.OnQueryTextListener {
 
-import android.app.ListActivity;
-import android.content.ContentUris;
-import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.ListView;
-import android.widget.SearchView;
-import android.widget.SimpleCursorAdapter;
-
-public class NoteSearch extends ListActivity implements SearchView.OnQueryTextListener {
-    private static final String[] PROJECTION = new String[] {
+    private static final String[] PROJECTION = new String[]{
             NotePad.Notes._ID, NotePad.Notes.COLUMN_NAME_TITLE, NotePad.Notes.COLUMN_NAME_MODIFICATION_DATE
     };
     private SearchView searchView;
-
+    private RecyclerView recyclerView;
+    private NoteAdapter adapter;
+    private Cursor cursor;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.note_search_list);
+        recyclerView = findViewById(R.id.recycler_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new NoteAdapter(new ArrayList<>());
+        recyclerView.setAdapter(adapter);
+
         Intent intent = getIntent();
         if (intent.getData() == null) {
             intent.setData(NotePad.Notes.CONTENT_URI);
         }
-        searchView = (SearchView) findViewById(R.id.search_view);
-        searchView.setOnQueryTextListener(this);
+        searchView = findViewById(R.id.search_view);
+        searchView.setOnQueryTextListener(this::onQueryTextChange);
+
+        getLoaderManager().initLoader(0, null, this);
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        getLoaderManager().restartLoader(0, null, this);
+        return true;
     }
 
     @Override
@@ -202,30 +193,24 @@ public class NoteSearch extends ListActivity implements SearchView.OnQueryTextLi
     }
 
     @Override
-    public boolean onQueryTextChange(String newText) {
-        updateNotesList(newText);
-        return true;
-    }
-
-    private void updateNotesList(String newText) {
-        String selection = NotePad.Notes.COLUMN_NAME_TITLE + " LIKE ?";
-        String[] selectionArgs = { "%" + newText + "%" };//newText为搜索的内容
-        Cursor cursor = managedQuery(
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return new CursorLoader(this,
                 getIntent().getData(),
                 PROJECTION,
-                selection,
-                selectionArgs,
-                NotePad.Notes.DEFAULT_SORT_ORDER
-        );
-        setListAdapter(new SimpleCursorAdapter(
-                this,
-                R.layout.noteslist_item,
-                cursor,
-                new String[]{NotePad.Notes.COLUMN_NAME_TITLE, NotePad.Notes.COLUMN_NAME_MODIFICATION_DATE},
-                new int[]{android.R.id.text1, R.id.time}
-        ));
+                NotePad.Notes.COLUMN_NAME_TITLE + " LIKE ?",
+                new String[]{"%" + searchView.getQuery().toString() + "%"},
+                NotePad.Notes.DEFAULT_SORT_ORDER);
     }
 
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        cursor = data;
+        adapter.swapCursor(data);
+    }
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        adapter.swapCursor(null);
+    }
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
         Uri uri = ContentUris.withAppendedId(getIntent().getData(), id);
@@ -239,34 +224,25 @@ public class NoteSearch extends ListActivity implements SearchView.OnQueryTextLi
 }
 ```
 
-5.在mainifests注册NoteSearch:
-
-```
-<activity
-    android:name="NoteSearch"
-    android:label="@string/title_notes_search">
-    </activity>
-```
-
 ## 四、笔记导出：
-![img_7.png](img_7.png)
+![img_17.png](img_17.png)
 
 ![img_8.png](img_8.png)
 
-![img_9.png](img_9.png)
-![img_15.png](img_15.png)
+![img_19.png](img_19.png)
+
+![img_20.png](img_20.png)
 
 打开Note2:
 
 ![img_16.png](img_16.png)
-1.添加导出按钮
+
+1.添加导出按钮并创建导出方法用于从NoteEditor`的Activity中启动OutputText`的Activity:在用户编辑或查看笔记后，将笔记内容输出到另一个界面或进行进一步处理
 
 ```
 <item android:id="@+id/menu_output"
-    android:title="导出" />
+    android:title="outpu" />
 ```
-
-2.创建导出方法用于从NoteEditor`的Activity中启动OutputText`的Activity:在用户编辑或查看笔记后，将笔记内容输出到另一个界面或进行进一步处理
 
 ```
 private final void outputNote() {
@@ -276,7 +252,7 @@ NoteEditor.this.startActivity(intent);
 }
 ```
 
-3.创建导出界面的布局:
+2.创建导出界面的布局:
 
 ```
 <?xml version="1.0" encoding="utf-8"?>
@@ -285,7 +261,12 @@ NoteEditor.this.startActivity(intent);
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="16dp">
-
+ <Button
+        android:id="@+id/output_ok"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/confirm"
+        android:onClick="onConfirmClick" />
     <EditText
         android:id="@+id/output_name"
         android:layout_width="match_parent"
@@ -295,122 +276,108 @@ NoteEditor.this.startActivity(intent);
         android:hint="@string/enter_name"
         android:inputType="textCapSentences"
         android:maxLength="50" />
-
-    <Button
-        android:id="@+id/output_ok"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/confirm"
-        android:onClick="onConfirmClick" />
 </LinearLayout>
 ```
 
-4.新建OutputText类:该类处理将笔记内容输出到外部存储设备（如SD卡）中的文本文件的逻辑
+3.新建导出类:该类处理将笔记内容输出到外部存储设备（如SD卡）中的文本文件的逻辑
 
 ```
-import android.app.Activity;
-    import android.database.Cursor;
-    import android.net.Uri;
-    import android.os.Bundle;
-    import android.os.Environment;
-    import android.view.View;
-    import android.widget.EditText;
-    import android.widget.Toast;
-
-    import java.io.File;
-    import java.io.FileOutputStream;
-    import java.io.OutputStreamWriter;
-    import java.io.PrintWriter;
-
-    public class OutputText extends Activity {
+public class Output extends Activity {
     private static final String[] PROJECTION = new String[]{
-    NotePad.Notes._ID,
-    NotePad.Notes.COLUMN_NAME_TITLE,
-    NotePad.Notes.COLUMN_NAME_NOTE,
-    NotePad.Notes.COLUMN_NAME_CREATE_DATE,
-    NotePad.Notes.COLUMN_NAME_MODIFICATION_DATE
+            NotePad.Notes._ID,
+            NotePad.Notes.COLUMN_NAME_TITLE,
+            NotePad.Notes.COLUMN_NAME_NOTE,
+            NotePad.Notes.COLUMN_NAME_CREATE_DATE,
+            NotePad.Notes.COLUMN_NAME_MODIFICATION_DATE
     };
-    private Cursor mCursor;
     private EditText mName;
     private Uri mUri;
     private boolean flag = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    setContentView(R.layout.output_text);
-    mUri = getIntent().getData();
-    mCursor = managedQuery(
-    mUri,
-    PROJECTION,
-    null,
-    null,
-    null
-    );
-    mName = (EditText) findViewById(R.id.output_name);
-    }
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.output_text);
+        mUri = getIntent().getData();
+        mName = (EditText) findViewById(R.id.output_name);
 
-    @Override
-    protected void onResume() {
-    super.onResume();
-    if (mCursor != null && !mCursor.isClosed()) {
-    mCursor.moveToFirst();
-    mName.setText(mCursor.getString(1));
-    }
+        // 使用LoaderManager来查询数据
+        getLoaderManager().initLoader(0, null, new LoaderManager.LoaderCallbacks<Cursor>() {
+            @Override
+            public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+                return new CursorLoader(OutputText.this,
+                        mUri,
+                        PROJECTION,
+                        null,
+                        null,
+                        null);
+            }
+
+            @Override
+            public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+                if (data != null && data.moveToFirst()) {
+                    mName.setText(data.getString(1));
+                }
+            }
+
+            @Override
+            public void onLoaderReset(Loader<Cursor> loader) {
+                // Do nothing
+            }
+        });
     }
 
     @Override
     protected void onPause() {
-    super.onPause();
-    if (mCursor != null && !mCursor.isClosed() && flag) {
-    write();
-    }
-    flag = false;
+        super.onPause();
+        if (flag) {
+            write();
+        }
+        flag = false;
     }
 
     public void OutputOk(View v) {
-    flag = true;
-    finish();
+        flag = true;
+        finish();
     }
 
     private void write() {
-    try {
-    if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-    File sdCardDir = Environment.getExternalStorageDirectory();
-    File targetFile = new File(sdCardDir.getCanonicalPath() + "/" + mName.getText().toString() + ".txt");
-    PrintWriter ps = new PrintWriter(new OutputStreamWriter(new FileOutputStream(targetFile), "UTF-8"));
-    ps.println(mCursor.getString(1));
-    ps.println(mCursor.getString(2));
-    ps.println("创建时间：" + mCursor.getString(3));
-    ps.println("最后一次修改时间：" + mCursor.getString(4));
-    ps.close();
-    Toast.makeText(this, "保存成功,保存位置：" + sdCardDir.getCanonicalPath() + "/" + mName.getText() + ".txt", Toast.LENGTH_LONG).show();
+        try {
+            if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+                File sdCardDir = Environment.getExternalStorageDirectory();
+                File targetFile = new File(sdCardDir, mName.getText().toString() + ".txt");
+                try (PrintWriter ps = new PrintWriter(new OutputStreamWriter(new FileOutputStream(targetFile), "UTF-8"))) {
+                    ContentResolver contentResolver = getContentResolver();
+                    Cursor cursor = contentResolver.query(mUri, PROJECTION, null, null, null);
+                    if (cursor != null && cursor.moveToFirst()) {
+                        ps.println(cursor.getString(1));
+                        ps.println(cursor.getString(2));
+                        ps.println("创建时间：" + cursor.getString(3));
+                        ps.println("最后一次修改时间：" + cursor.getString(4));
+                        cursor.close();
+                    }
+                }
+                Toast.makeText(this, "文件成功保存至：" + sdCardDir.getCanonicalPath() + "/" + mName.getText() + ".txt", Toast.LENGTH_LONG).show();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "保存失败: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
-    } catch (Exception e) {
-    e.printStackTrace();
-    }
-    }
-    }
-```
-
-5在main中授权:
-
-```xml
-<!-- 向SD卡写入数据权限 -->
-<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-<!-- 读取SD卡数据权限 -->
-<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+}
 ```
 
 ## 五 、笔记排序：
 
-按创建时间排序:
+按创建时间排序:时间早的在最上面
 
-![img_10.png](img_10.png)
+![img_21.png](img_21.png)
 
-按修改时间排序:
+![img_22.png](img_22.png)
 
-![img_11.png](img_11.png)
+按修改时间排序:时间晚的在上面
+
+![img_23.png](img_23.png)!
 
 1.添加菜单选项:
 
@@ -423,7 +390,7 @@ import android.app.Activity;
     android:title="按修改时间排序"/>
 ```
 
-2.在notesList中添加菜单case:用于处理了两个菜单项的点击事件
+2.在notesList中添加两种排序情况:用于处理了两个菜单项的点击事件
 
 ```
 //创建时间排序
@@ -478,7 +445,7 @@ case R.id.menu_sort2:
     android:showAsAction="never" />
 ```
 
-2.在list中添加菜单case:
+2.在list中添加点击情况:
 
 ```
 case R.id.menu_change_background:
