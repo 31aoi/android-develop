@@ -15,6 +15,6 @@
           android:title="@string/menu_delete"
           android:showAsAction="ifRoom|withText" />
     <item android:id="@+id/menu_output"
-        android:title="导出" />
+        android:title="output" />
 </menu>
 

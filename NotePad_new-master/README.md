@@ -1,24 +1,26 @@
 # NotePad
 
-## 一 功能扩展如下：
+## 一 功能如下：
 
 1.增加时间戳显示
 
 2.添加笔记查询功能
 
-3.笔记导出
+3.笔记导出(拓展)
 
-4.笔记排序
+4.笔记排序(拓展)
+
+5.ui美化(拓展)
 
 ## 二 主界面增加时间戳：
 
-效果:
+创建笔记完成后效果:显示创建时间
 
 
 
 ![img_1.png](img_1.png)
 
-修改Note2:
+修改Note2这条笔记:修改时间变化
 
 
 
@@ -120,6 +122,8 @@ values.put(NotePad.Notes.COLUMN_NAME_MODIFICATION_DATE, Time);
 
 2.在NoteLIst类的onOptionsItemSelected方法中添加case情况:
 
+(当用户在`NotesList`活动中点击搜索菜单项时，应用程序将会打开一个新的`NoteSearch`活动，用于执行搜索相关的操作)
+
 ```
 case R.id.menu_search:
     Intent intent = new Intent();
@@ -158,7 +162,7 @@ case R.id.menu_search:
 </LinearLayout>
 ```
 
-4.新建NoteSearch类:
+4.新建NoteSearch类:这个类提供了一个用户界面，允许用户搜索笔记应用中的笔记，并显示搜索结果。当用户选择一个搜索结果时，根据原始请求的意图，它可以返回选中的笔记或者打开笔记的编辑界面
 
 ```
 package com.example.android.notepad;
@@ -250,7 +254,11 @@ public class NoteSearch extends ListActivity implements SearchView.OnQueryTextLi
 ![img_8.png](img_8.png)
 
 ![img_9.png](img_9.png)
+![img_15.png](img_15.png)
 
+打开Note2:
+
+![img_16.png](img_16.png)
 1.添加导出按钮
 
 ```
@@ -258,7 +266,7 @@ public class NoteSearch extends ListActivity implements SearchView.OnQueryTextLi
     android:title="导出" />
 ```
 
-2.创建导出方法用于从NoteEditor`的Activity中启动OutputText`的Activity
+2.创建导出方法用于从NoteEditor`的Activity中启动OutputText`的Activity:在用户编辑或查看笔记后，将笔记内容输出到另一个界面或进行进一步处理
 
 ```
 private final void outputNote() {
@@ -297,7 +305,7 @@ NoteEditor.this.startActivity(intent);
 </LinearLayout>
 ```
 
-4.新建OutputText类:
+4.新建OutputText类:该类处理将笔记内容输出到外部存储设备（如SD卡）中的文本文件的逻辑
 
 ```
 import android.app.Activity;
@@ -385,7 +393,7 @@ import android.app.Activity;
     }
 ```
 
-5.授权:
+5在main中授权:
 
 ```xml
 <!-- 向SD卡写入数据权限 -->
@@ -415,7 +423,7 @@ import android.app.Activity;
     android:title="按修改时间排序"/>
 ```
 
-2.在notesList中添加菜单case:
+2.在notesList中添加菜单case:用于处理了两个菜单项的点击事件
 
 ```
 //创建时间排序

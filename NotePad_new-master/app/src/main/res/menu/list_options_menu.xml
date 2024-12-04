@@ -20,13 +20,10 @@
           android:alphabeticShortcut='p' />
     <item
         android:id="@+id/menu_sort1"
-        android:title="按创建时间排序"/>
+        android:title="Creation Time Sorting"/>
     <item
         android:id="@+id/menu_sort2"
-        android:title="按修改时间排序"/>
-    <item
-        android:id="@+id/menu_change_background"
-        android:title="更换背景颜色"
-        android:showAsAction="never" />
+        android:title="Modify the Time sorting"/>
+
 </menu>
 

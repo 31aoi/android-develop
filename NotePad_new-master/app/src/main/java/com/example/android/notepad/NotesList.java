@@ -329,9 +329,7 @@ public class NotesList extends ListActivity {
                 );
                 setListAdapter(adapter);
                 return true;
-            case R.id.menu_change_background:
-                changeBackgroundColor();
-                return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }
